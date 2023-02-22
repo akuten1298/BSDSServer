@@ -10,10 +10,17 @@ public class MyServletContextListener implements ServletContextListener {
 
   public void contextDestroyed(ServletContextEvent sce) {
     // Code to be executed when the server stops
-    RMQProducer producer = RMQProducer.getInstance();
+//    RMQProducer producer = RMQProducer.getInstance();
+//    try {
+//      producer.getChannel().close();
+//    } catch (IOException | TimeoutException e) {
+//      System.out.println(e.getMessage());
+//    }
+
+    RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
     try {
-      producer.getChannel().close();
-    } catch (IOException | TimeoutException e) {
+      rmqChannelPool.close();
+    } catch (Exception e) {
       System.out.println(e.getMessage());
     }
 

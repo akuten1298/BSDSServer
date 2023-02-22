@@ -3,6 +3,7 @@
  */
 
 import com.google.gson.Gson;
+import com.rabbitmq.client.Channel;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "SwipeServlet", value = "/SwipeServlet")
 public class SwipeServlet extends HttpServlet {
 
+  private static final String QUEUE_NAME = "twinder_queue";
   private static final String LEFT_URL_VERIFICATION = "/left";
   private static final String RIGHT_URL_VERIFICATION = "/right";
 
@@ -82,8 +84,10 @@ public class SwipeServlet extends HttpServlet {
           response.setStatus(HttpServletResponse.SC_NOT_FOUND);
           out.println("Comments are too long! Please stay within 256 characters");
         } else {
-          RMQProducer rmqProducer = RMQProducer.getInstance();
-          rmqProducer.produceMessage(swipeRequest);
+          produceMessage(swipeRequest);
+//          RMQProducer rmqProducer = RMQProducer.getInstance();
+//          rmqProducer.produceMessage(swipeRequest);
+
           response.setStatus(HttpServletResponse.SC_CREATED);
           out.println("We will keep this in mind and heart ;)");
         }
@@ -92,6 +96,19 @@ public class SwipeServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
+  }
+
+  public void produceMessage(SwipeRequest swipeRequest) {
+    String message = swipeRequest.convertToQueueMessage();
+    RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
+    try {
+      Channel channel = rmqChannelPool.getChannelFromPool();
+      channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+      rmqChannelPool.returnChannelToPool(channel);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
   }
 
 }
