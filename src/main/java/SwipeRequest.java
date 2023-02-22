@@ -8,6 +8,16 @@ public class SwipeRequest {
 
   private String comment;
 
+  private String swipeDirection;
+
+  public String getSwipeDirection() {
+    return swipeDirection;
+  }
+
+  public void setSwipeDirection(String swipeDirection) {
+    this.swipeDirection = swipeDirection;
+  }
+
   public SwipeRequest(String swiper, String swipee, String comment) {
     this.swiper = swiper;
     this.swipee = swipee;
@@ -26,12 +36,20 @@ public class SwipeRequest {
     return comment;
   }
 
+  public String convertToQueueMessage() {
+    return "swiper=" + swiper +
+        ", swipee=" + swipee +
+        ", comment=" + comment +
+        ", swipeDirection=" + swipeDirection;
+  }
+
   @Override
   public String toString() {
     return "SwipeRequest{" +
         "swiper='" + swiper + '\'' +
         ", swipee='" + swipee + '\'' +
         ", comment='" + comment + '\'' +
+        ", swipeDirection='" + swipeDirection + '\'' +
         '}';
   }
 }

@@ -3,6 +3,14 @@
     <output-path>$PROJECT_DIR$/out/artifacts/BSDSServer_war</output-path>
     <root id="archive" name="BSDSServer_war.war">
       <element id="artifact" artifact-name="BSDSServer:war exploded" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: ch.qos.logback:logback-classic:1.2.6" />
+          <element id="library" level="project" name="Maven: com.rabbitmq:amqp-client:5.16.0" />
+          <element id="library" level="project" name="Maven: ch.qos.logback:logback-core:1.2.6" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.32" />
+        </element>
+      </element>
     </root>
   </artifact>
 </component>

@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "SwipeServlet", value = "/SwipeServlet")
 public class SwipeServlet extends HttpServlet {
 
+  private static final String LEFT_URL_VERIFICATION = "/left";
+  private static final String RIGHT_URL_VERIFICATION = "/right";
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
@@ -54,34 +57,41 @@ public class SwipeServlet extends HttpServlet {
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
 
-    Gson gson = new Gson();
-    try {
-      StringBuilder stringBuilder = new StringBuilder();
-      String reader = "";
-      while ((reader = request.getReader().readLine()) != null) {
-        stringBuilder.append(reader);
-      }
+    String urlPath = request.getPathInfo();
 
-      SwipeRequest swipeRequest = (SwipeRequest) gson.fromJson(stringBuilder.toString(), SwipeRequest.class);
-      PrintWriter out = response.getWriter();
-
-      if(swipeRequest.getSwiper().equals("") || swipeRequest.getSwipee().equals("")) {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        out.println("Please provide non empty data");
-      } else if(swipeRequest.getComment().length() > 256) {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        out.println("Comments are too long! Please stay within 256 characters");
-      } else {
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        out.println("We will keep this in mind and heart ;)");
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    if(!(LEFT_URL_VERIFICATION.equals(urlPath) || RIGHT_URL_VERIFICATION.equals(urlPath))) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    } else {
+      Gson gson = new Gson();
+      try {
+        StringBuilder stringBuilder = new StringBuilder();
+        String reader = "";
+        while ((reader = request.getReader().readLine()) != null) {
+          stringBuilder.append(reader);
+        }
+
+        SwipeRequest swipeRequest = (SwipeRequest) gson.fromJson(stringBuilder.toString(), SwipeRequest.class);
+        swipeRequest.setSwipeDirection(urlPath.replace("/", ""));
+
+        PrintWriter out = response.getWriter();
+
+        if(swipeRequest.getSwiper().equals("") || swipeRequest.getSwipee().equals("")) {
+          response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          out.println("Please provide non empty data");
+        } else if(swipeRequest.getComment().length() > 256) {
+          response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          out.println("Comments are too long! Please stay within 256 characters");
+        } else {
+          RMQProducer rmqProducer = RMQProducer.getInstance();
+          rmqProducer.produceMessage(swipeRequest);
+          response.setStatus(HttpServletResponse.SC_CREATED);
+          out.println("We will keep this in mind and heart ;)");
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      }
     }
   }
 
-  public void swipeRequestParsing() {
-
-  }
 }

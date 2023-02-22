@@ -14,4 +14,8 @@
     <url-pattern>/swipe/*</url-pattern>
   </servlet-mapping>
 
+  <listener>
+    <listener-class>MyServletContextListener</listener-class>
+  </listener>
+
 </web-app>
