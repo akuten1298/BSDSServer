@@ -12,7 +12,10 @@ import java.util.concurrent.TimeoutException;
 public class RMQChannelPool {
 
   private static final String QUEUE_NAME = "twinder_queue";
-  private static final int MAX_CHANNELS = 10;
+
+  private static final String RMQ_EC2 = "34.219.64.77";
+  private static final String LOCALHOST = "localhost";
+  private static final int MAX_CHANNELS = 200;
   private BlockingQueue<Channel> channelPool;
   private Connection connection;
 
@@ -27,7 +30,9 @@ public class RMQChannelPool {
 
   public RMQChannelPool() {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost("localhost");
+    factory.setHost(RMQ_EC2);
+    factory.setUsername("test");
+    factory.setPassword("test");
     try {
       connection = factory.newConnection();
       channelPool = new LinkedBlockingQueue<>(MAX_CHANNELS);

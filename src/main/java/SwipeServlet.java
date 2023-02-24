@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 public class SwipeServlet extends HttpServlet {
 
   private static final String QUEUE_NAME = "twinder_queue";
-  private static final String LEFT_URL_VERIFICATION = "/left";
-  private static final String RIGHT_URL_VERIFICATION = "/right";
+  private static final String LEFT_URL_VERIFICATION = "left";
+  private static final String RIGHT_URL_VERIFICATION = "right";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -60,6 +60,7 @@ public class SwipeServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8");
 
     String urlPath = request.getPathInfo();
+    urlPath = urlPath.replace("/", "");
 
     if(!(LEFT_URL_VERIFICATION.equals(urlPath) || RIGHT_URL_VERIFICATION.equals(urlPath))) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -73,7 +74,7 @@ public class SwipeServlet extends HttpServlet {
         }
 
         SwipeRequest swipeRequest = (SwipeRequest) gson.fromJson(stringBuilder.toString(), SwipeRequest.class);
-        swipeRequest.setSwipeDirection(urlPath.replace("/", ""));
+        swipeRequest.setSwipeDirection(urlPath);
 
         PrintWriter out = response.getWriter();
 
@@ -84,12 +85,10 @@ public class SwipeServlet extends HttpServlet {
           response.setStatus(HttpServletResponse.SC_NOT_FOUND);
           out.println("Comments are too long! Please stay within 256 characters");
         } else {
-          produceMessage(swipeRequest);
-//          RMQProducer rmqProducer = RMQProducer.getInstance();
-//          rmqProducer.produceMessage(swipeRequest);
-
           response.setStatus(HttpServletResponse.SC_CREATED);
           out.println("We will keep this in mind and heart ;)");
+
+          produceMessage(swipeRequest);
         }
       } catch (Exception ex) {
         ex.printStackTrace();
