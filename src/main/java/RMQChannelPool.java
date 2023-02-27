@@ -30,9 +30,8 @@ public class RMQChannelPool {
 
   public RMQChannelPool() {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(RMQ_EC2);
-    factory.setUsername("test");
-    factory.setPassword("test");
+    factory.setHost(LOCALHOST);
+    setUserCredentials(factory);
     try {
       connection = factory.newConnection();
       channelPool = new LinkedBlockingQueue<>(MAX_CHANNELS);
@@ -53,6 +52,16 @@ public class RMQChannelPool {
 
   public void returnChannelToPool(Channel channel) throws Exception {
     channelPool.offer(channel);
+  }
+
+  public void setUserCredentials(ConnectionFactory factory) {
+    if(LOCALHOST.equals(factory.getHost())) {
+      factory.setUsername("guest");
+      factory.setPassword("guest");
+    } else {
+      factory.setUsername("test");
+      factory.setPassword("test");
+    }
   }
 
   public void close() throws Exception {
