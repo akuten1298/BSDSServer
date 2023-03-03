@@ -13,7 +13,7 @@ public class RMQChannelPool {
 
   private static final String QUEUE_NAME = "twinder_queue";
 
-  private static final String RMQ_EC2 = "34.219.64.77";
+  private static final String RMQ_EC2 = "34.212.143.161";
   private static final String LOCALHOST = "localhost";
   private static final int MAX_CHANNELS = 200;
   private BlockingQueue<Channel> channelPool;
@@ -30,7 +30,7 @@ public class RMQChannelPool {
 
   public RMQChannelPool() {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(LOCALHOST);
+    factory.setHost(RMQ_EC2);
     setUserCredentials(factory);
     try {
       connection = factory.newConnection();
@@ -55,13 +55,8 @@ public class RMQChannelPool {
   }
 
   public void setUserCredentials(ConnectionFactory factory) {
-    if(LOCALHOST.equals(factory.getHost())) {
       factory.setUsername("guest");
       factory.setPassword("guest");
-    } else {
-      factory.setUsername("test");
-      factory.setPassword("test");
-    }
   }
 
   public void close() throws Exception {
