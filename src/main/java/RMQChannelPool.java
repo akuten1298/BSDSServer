@@ -13,7 +13,7 @@ public class RMQChannelPool {
 
   private static final String QUEUE_NAME = "twinder_queue";
 
-  private static final String RMQ_EC2 = "34.212.143.161";
+  private static final String RMQ_EC2 = "18.236.161.239";
   private static final String LOCALHOST = "localhost";
   private static final int MAX_CHANNELS = 200;
   private BlockingQueue<Channel> channelPool;
