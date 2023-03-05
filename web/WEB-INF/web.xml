@@ -15,7 +15,7 @@
   </servlet-mapping>
 
   <listener>
-    <listener-class>MyServletContextListener</listener-class>
+    <listener-class>Assignment2.MyServletContextListener</listener-class>
   </listener>
 
 </web-app>

@@ -1,3 +1,5 @@
+package Assignment2;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -13,9 +15,10 @@ public class RMQChannelPool {
 
   private static final String QUEUE_NAME = "twinder_queue";
 
-  private static final String RMQ_EC2 = "18.236.161.239";
+  private static final String RMQ_EC2 = "172.31.29.115";
+  private static final int RMQ_LB_PORT = 5672;
   private static final String LOCALHOST = "localhost";
-  private static final int MAX_CHANNELS = 200;
+  private static final int MAX_CHANNELS = 400;
   private BlockingQueue<Channel> channelPool;
   private Connection connection;
 

@@ -1,3 +1,7 @@
+package Assignment2;
+
+import Assignment2.RMQChannelPool;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -28,5 +32,7 @@ public class MyServletContextListener implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     // Code to be executed when the server starts
     System.out.println("Server started!");
+    RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
+    System.out.println("Pool size" + rmqChannelPool.getChannelPool().size());
   }
 }
