@@ -11,11 +11,11 @@
 
   <servlet-mapping>
     <servlet-name>SwipeServlet</servlet-name>
-    <url-pattern>/swipe/*</url-pattern>
+    <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
   <listener>
-    <listener-class>Assignment2.MyServletContextListener</listener-class>
+    <listener-class>MyServletContextListener</listener-class>
   </listener>
 
 </web-app>

@@ -8,6 +8,7 @@ import com.rabbitmq.client.Channel;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,36 +24,46 @@ public class SwipeServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
-      res.setContentType("text/plain");
+
+      //TODO Fix url mapping issue
+
+      res.setContentType("application/json");
       String urlPath = req.getPathInfo();
+      ServletOutputStream printWriter = res.getOutputStream();
+      Gson gson = new Gson();
 
       // check we have a URL!
       if (urlPath == null || urlPath.isEmpty()) {
-          res.setStatus(HttpServletResponse.SC_NOT_FOUND);
-          res.getWriter().write("missing paramterers");
-          return;
-      }
-
-      String[] urlParts = urlPath.split("/");
-      // and now validate url path and return the response status code
-      // (and maybe also some value if input is valid)
-
-      if (!isUrlValid(urlParts)) {
-          res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          InvalidResponse invalidResponse = new InvalidResponse("missing parameters");
+          String resp = gson.toJson(invalidResponse);
+          printWriter.print(resp);
       } else {
-          res.setStatus(HttpServletResponse.SC_OK);
-          // do any sophisticated processing with urlParts which contains all the url params
-          // TODO: process url params in `urlParts`
-          res.getWriter().write("It works!");
-      }
-  }
+          String[] urlParts = urlPath.split("/");
+          // and now validate url path and return the response status code
+          // (and maybe also some value if input is valid)
 
-    private boolean isUrlValid(String[] urlPath) {
-        // TODO: validate the request url path according to the API spec
-        // urlPath  = "/1/seasons/2019/day/1/skier/123"
-        // urlParts = [, 1, seasons, 2019, day, 1, skier, 123]
-        return true;
-    }
+          if("matches".equals(urlParts[1])) {
+              res.setStatus(HttpServletResponse.SC_OK);
+              MatchesResponse matchesResponse = new MatchesResponse();
+              String resp = gson.toJson(matchesResponse);
+              printWriter.print(resp);
+          } else if("stats".equals(urlParts[1])) {
+              res.setStatus(HttpServletResponse.SC_OK);
+              StatsResponse statsResponse = new StatsResponse();
+              String resp = gson.toJson(statsResponse);
+              printWriter.print(resp);
+          } else {
+              res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              InvalidResponse invalidResponse = new InvalidResponse("Invalid Request Parameters");
+              String resp = gson.toJson(invalidResponse);
+              printWriter.print(resp);
+          }
+      }
+
+      printWriter.flush();
+      printWriter.close();
+  }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
