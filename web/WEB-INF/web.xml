@@ -11,7 +11,7 @@
 
   <servlet-mapping>
     <servlet-name>SwipeServlet</servlet-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/swipe/*</url-pattern>
   </servlet-mapping>
 
   <listener>

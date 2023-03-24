@@ -5,10 +5,14 @@
 import Assignment2.RMQChannelPool;
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
+
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.*;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,53 +20,16 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "SwipeServlet", value = "/SwipeServlet")
 public class SwipeServlet extends HttpServlet {
-
+  private DynamoDbClient dynamoDbClient;
   private static final String QUEUE_NAME = "twinder_queue";
   private static final String LEFT_URL_VERIFICATION = "left";
   private static final String RIGHT_URL_VERIFICATION = "right";
-
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException {
+  public void init() throws ServletException {
+    super.init();
 
-      //TODO Fix url mapping issue
-
-      res.setContentType("application/json");
-      String urlPath = req.getPathInfo();
-      ServletOutputStream printWriter = res.getOutputStream();
-      Gson gson = new Gson();
-
-      // check we have a URL!
-      if (urlPath == null || urlPath.isEmpty()) {
-          res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          InvalidResponse invalidResponse = new InvalidResponse("missing parameters");
-          String resp = gson.toJson(invalidResponse);
-          printWriter.print(resp);
-      } else {
-          String[] urlParts = urlPath.split("/");
-          // and now validate url path and return the response status code
-          // (and maybe also some value if input is valid)
-
-          if("matches".equals(urlParts[1])) {
-              res.setStatus(HttpServletResponse.SC_OK);
-              MatchesResponse matchesResponse = new MatchesResponse();
-              String resp = gson.toJson(matchesResponse);
-              printWriter.print(resp);
-          } else if("stats".equals(urlParts[1])) {
-              res.setStatus(HttpServletResponse.SC_OK);
-              StatsResponse statsResponse = new StatsResponse();
-              String resp = gson.toJson(statsResponse);
-              printWriter.print(resp);
-          } else {
-              res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              InvalidResponse invalidResponse = new InvalidResponse("Invalid Request Parameters");
-              String resp = gson.toJson(invalidResponse);
-              printWriter.print(resp);
-          }
-      }
-
-      printWriter.flush();
-      printWriter.close();
+    // Initialize the DynamoDB client
+    dynamoDbClient = DynamoDbClient.create();
   }
 
   @Override
@@ -107,6 +74,25 @@ public class SwipeServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
+
+    //Sample DDB
+    String tableName = "your_Ftable_name";
+    String primaryKey = "your_primary_key";
+    String primaryKeyValue = "your_primary_key_value";
+
+    GetItemRequest getItemRequest = GetItemRequest.builder()
+            .tableName(tableName)
+            .key(Key.builder().put(primaryKey, AttributeValue.builder().s(primaryKeyValue).build()).build())
+            .build();
+
+    try {
+      GetItemResponse getItemResponse = dynamoDbClient.getItem(getItemRequest);
+      resp.getWriter().println("Item retrieved: " + getItemResponse.item());
+    } catch (DynamoDbException e) {
+      e.printStackTrace();
+      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      resp.getWriter().println("Error retrieving item from DynamoDB: " + e.getMessage());
+    }
   }
 
   public void produceMessage(SwipeRequest swipeRequest) {
@@ -120,6 +106,12 @@ public class SwipeServlet extends HttpServlet {
       System.out.println(e.getMessage());
     }
 
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    dynamoDbClient.close();
   }
 
 }
