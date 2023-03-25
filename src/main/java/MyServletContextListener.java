@@ -31,6 +31,6 @@ public class MyServletContextListener implements ServletContextListener {
     // Code to be executed when the server starts
     System.out.println("Server started!");
     RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
-//    System.out.println("Pool size" + rmqChannelPool.getChannelPool().size());
+    System.out.println("Pool size" + rmqChannelPool.getChannelPool().size());
   }
 }

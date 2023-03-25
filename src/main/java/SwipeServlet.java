@@ -4,11 +4,9 @@
 
 import Assignment2.RMQChannelPool;
 import com.google.gson.Gson;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
+import com.rabbitmq.client.MessageProperties;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,16 +18,17 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "SwipeServlet", value = "/SwipeServlet")
 public class SwipeServlet extends HttpServlet {
-  private DynamoDbClient dynamoDbClient;
   private static final String QUEUE_NAME = "twinder_queue";
   private static final String LEFT_URL_VERIFICATION = "left";
   private static final String RIGHT_URL_VERIFICATION = "right";
+
+  private final AMQP.BasicProperties properties = MessageProperties.PERSISTENT_TEXT_PLAIN;
+
   @Override
   public void init() throws ServletException {
     super.init();
 
     // Initialize the DynamoDB client
-    dynamoDbClient = DynamoDbClient.create();
   }
 
   @Override
@@ -76,23 +75,23 @@ public class SwipeServlet extends HttpServlet {
     }
 
     //Sample DDB
-    String tableName = "your_Ftable_name";
-    String primaryKey = "your_primary_key";
-    String primaryKeyValue = "your_primary_key_value";
-
-    GetItemRequest getItemRequest = GetItemRequest.builder()
-            .tableName(tableName)
-            .key(Key.builder().put(primaryKey, AttributeValue.builder().s(primaryKeyValue).build()).build())
-            .build();
-
-    try {
-      GetItemResponse getItemResponse = dynamoDbClient.getItem(getItemRequest);
-      resp.getWriter().println("Item retrieved: " + getItemResponse.item());
-    } catch (DynamoDbException e) {
-      e.printStackTrace();
-      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      resp.getWriter().println("Error retrieving item from DynamoDB: " + e.getMessage());
-    }
+//    String tableName = "your_Ftable_name";
+//    String primaryKey = "your_primary_key";
+//    String primaryKeyValue = "your_primary_key_value";
+//
+//    GetItemRequest getItemRequest = GetItemRequest.builder()
+//            .tableName(tableName)
+//            .key(Key.builder().put(primaryKey, AttributeValue.builder().s(primaryKeyValue).build()).build())
+//            .build();
+//
+//    try {
+//      GetItemResponse getItemResponse = dynamoDbClient.getItem(getItemRequest);
+//      resp.getWriter().println("Item retrieved: " + getItemResponse.item());
+//    } catch (DynamoDbException e) {
+//      e.printStackTrace();
+//      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//      resp.getWriter().println("Error retrieving item from DynamoDB: " + e.getMessage());
+//    }
   }
 
   public void produceMessage(SwipeRequest swipeRequest) {
@@ -100,18 +99,12 @@ public class SwipeServlet extends HttpServlet {
     RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
     try {
       Channel channel = rmqChannelPool.getChannelFromPool();
-      channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+      channel.basicPublish("", QUEUE_NAME, properties, message.getBytes());
       rmqChannelPool.returnChannelToPool(channel);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
 
-  }
-
-  @Override
-  public void destroy() {
-    super.destroy();
-    dynamoDbClient.close();
   }
 
 }
