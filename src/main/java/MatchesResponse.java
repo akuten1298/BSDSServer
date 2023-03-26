@@ -4,10 +4,8 @@ import java.util.List;
 public class MatchesResponse {
     List<String> matchList;
 
-    public MatchesResponse() {
-        this.matchList = new ArrayList<>();
-        this.matchList.add("Temp");
-        this.matchList.add("Temp2");
+    public MatchesResponse(List<String> matchList) {
+        this.matchList = matchList;
     }
 
     public List<String> getMatchList() {

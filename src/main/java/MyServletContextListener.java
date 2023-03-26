@@ -1,4 +1,5 @@
 import Assignment2.RMQChannelPool;
+import com.mongodb.client.MongoClient;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -9,17 +10,12 @@ import javax.servlet.ServletContextListener;
 public class MyServletContextListener implements ServletContextListener {
 
   public void contextDestroyed(ServletContextEvent sce) {
-    // Code to be executed when the server stops
-//    RMQProducer producer = RMQProducer.getInstance();
-//    try {
-//      producer.getChannel().close();
-//    } catch (IOException | TimeoutException e) {
-//      System.out.println(e.getMessage());
-//    }
-
     RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
+    MongoConfig mongoConfig = MongoConfig.getInstance();
+    MongoClient mongoClient = mongoConfig.getMongoClient();
     try {
       rmqChannelPool.close();
+      mongoClient.close();
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -31,6 +27,6 @@ public class MyServletContextListener implements ServletContextListener {
     // Code to be executed when the server starts
     System.out.println("Server started!");
     RMQChannelPool rmqChannelPool = RMQChannelPool.getInstance();
-    System.out.println("Pool size" + rmqChannelPool.getChannelPool().size());
+    MongoConfig mongoConfig = MongoConfig.getInstance();
   }
 }

@@ -1,4 +1,8 @@
 import com.google.gson.Gson;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -7,9 +11,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/matches/*")
 public class MatchesServlet extends HttpServlet {
+
+    private static MongoCollection<Document> collection;
+    private static String MATCHES_DB = "matches";
+    private static String USER_ID = "userId";
+    private static String MATCH_LIST = "matchList";
+
+    @Override
+    public void init() throws ServletException {
+        MongoConfig mongoConfig = MongoConfig.getInstance();
+        MongoDatabase database = mongoConfig.getDatabase();
+        collection = database.getCollection(MATCHES_DB);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -17,7 +34,6 @@ public class MatchesServlet extends HttpServlet {
 
         res.setContentType("application/json");
         String urlPath = req.getPathInfo();
-        System.out.println("URL Path: " + urlPath);
         ServletOutputStream printWriter = res.getOutputStream();
         Gson gson = new Gson();
 
@@ -29,14 +45,20 @@ public class MatchesServlet extends HttpServlet {
             printWriter.print(resp);
         } else {
             String userId = urlPath.substring(1);
-            // and now validate url path and return the response status code
-            // (and maybe also some value if input is valid)
             res.setStatus(HttpServletResponse.SC_OK);
-            MatchesResponse matchesResponse = new MatchesResponse();
-            String resp = gson.toJson(matchesResponse);
-            printWriter.print(resp);
 
-            //TODO Implement user not found 404
+            Document myDoc = collection.find(Filters.eq(USER_ID, userId)).first();
+            MatchesResponse matchesResponse;
+            if(myDoc != null) {
+                matchesResponse = new MatchesResponse((List<String>)  myDoc.get(MATCH_LIST));
+                String resp = gson.toJson(matchesResponse);
+                printWriter.print(resp);
+            } else {
+                res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                InvalidResponse invalidResponse = new InvalidResponse("User Not Found");
+                String resp = gson.toJson(invalidResponse);
+                printWriter.print(resp);
+            }
         }
 
         printWriter.flush();
