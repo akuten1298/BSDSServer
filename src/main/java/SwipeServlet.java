@@ -27,8 +27,6 @@ public class SwipeServlet extends HttpServlet {
   @Override
   public void init() throws ServletException {
     super.init();
-
-    // Initialize the DynamoDB client
   }
 
   @Override
@@ -104,7 +102,6 @@ public class SwipeServlet extends HttpServlet {
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
-
   }
 
 }

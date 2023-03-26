@@ -1,4 +1,12 @@
 import com.google.gson.Gson;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -10,6 +18,23 @@ import java.io.IOException;
 
 @WebServlet("/stats/*")
 public class StatsServlet extends HttpServlet {
+
+    private static MongoCollection<Document> collection;
+
+    private static String NUM_LIKES = "numLikes";
+    private static String NUM_DISLIKES = "numDislikes";
+    private static String USER_ID = "userId";
+    @Override
+    public void init() throws ServletException {
+        String connectionString = "mongodb+srv://twinder_username:twinder_password@twindercluster.rdueczb.mongodb.net/?retryWrites=true&w=majority";
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(connectionString))
+                .build();
+        MongoClient mongoClient = MongoClients.create(settings);
+        MongoDatabase database = mongoClient.getDatabase("twinder");
+        collection = database.getCollection("stats");
+        System.out.println("Stats init called");
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -29,14 +54,20 @@ public class StatsServlet extends HttpServlet {
             printWriter.print(resp);
         } else {
             String userId = urlPath.substring(1);
-            // and now validate url path and return the response status code
-            // (and maybe also some value if input is valid)
             res.setStatus(HttpServletResponse.SC_OK);
-            StatsResponse statsResponse = new StatsResponse();
-            String resp = gson.toJson(statsResponse);
-            printWriter.print(resp);
 
-            //TODO Implement user not found 404
+            Document myDoc = collection.find(Filters.eq(USER_ID, userId)).first();
+            StatsResponse statsResponse;
+            if(myDoc != null) {
+                statsResponse = new StatsResponse(myDoc.getInteger(NUM_LIKES), myDoc.getInteger(NUM_DISLIKES));
+                String resp = gson.toJson(statsResponse);
+                printWriter.print(resp);
+            } else {
+                res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                InvalidResponse invalidResponse = new InvalidResponse("User Not Found");
+                String resp = gson.toJson(invalidResponse);
+                printWriter.print(resp);
+            }
         }
 
         printWriter.flush();
