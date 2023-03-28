@@ -71,25 +71,6 @@ public class SwipeServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
-
-    //Sample DDB
-//    String tableName = "your_Ftable_name";
-//    String primaryKey = "your_primary_key";
-//    String primaryKeyValue = "your_primary_key_value";
-//
-//    GetItemRequest getItemRequest = GetItemRequest.builder()
-//            .tableName(tableName)
-//            .key(Key.builder().put(primaryKey, AttributeValue.builder().s(primaryKeyValue).build()).build())
-//            .build();
-//
-//    try {
-//      GetItemResponse getItemResponse = dynamoDbClient.getItem(getItemRequest);
-//      resp.getWriter().println("Item retrieved: " + getItemResponse.item());
-//    } catch (DynamoDbException e) {
-//      e.printStackTrace();
-//      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//      resp.getWriter().println("Error retrieving item from DynamoDB: " + e.getMessage());
-//    }
   }
 
   public void produceMessage(SwipeRequest swipeRequest) {
