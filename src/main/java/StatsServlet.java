@@ -11,6 +11,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @WebServlet("/stats/*")
 public class StatsServlet extends HttpServlet {
@@ -19,14 +22,15 @@ public class StatsServlet extends HttpServlet {
 
     private static String NUM_LIKES = "numLikes";
     private static String NUM_DISLIKES = "numDislikes";
-    private static String USER_ID = "userId";
-    private static String STATS_DB = "stats";
-
+    private static String MONGO_ID = "_id";
+    private static String SWIPE_DB = "swipe";
+    private static String LIKES = "likes";
+    private static String DISLIKES = "dislikes";
     @Override
     public void init() throws ServletException {
         MongoConfig mongoConfig = MongoConfig.getInstance();
         MongoDatabase database = mongoConfig.getDatabase();
-        collection = database.getCollection(STATS_DB);
+        collection = database.getCollection(SWIPE_DB);
     }
 
     @Override
@@ -48,10 +52,13 @@ public class StatsServlet extends HttpServlet {
             String userId = urlPath.substring(1);
             res.setStatus(HttpServletResponse.SC_OK);
 
-            Document myDoc = collection.find(Filters.eq(USER_ID, userId)).first();
+            Document myDoc = collection.find(Filters.eq(MONGO_ID, userId)).first();
             StatsResponse statsResponse;
             if(myDoc != null) {
-                statsResponse = new StatsResponse(myDoc.getInteger(NUM_LIKES), myDoc.getInteger(NUM_DISLIKES));
+                Set<String> likesSet = new HashSet<>((Collection) myDoc.get(LIKES));
+                Set<String> disLikesSet = new HashSet<>((Collection) myDoc.get(DISLIKES));
+
+                statsResponse = new StatsResponse(likesSet.size(), disLikesSet.size());
                 String resp = gson.toJson(statsResponse);
                 printWriter.print(resp);
             } else {

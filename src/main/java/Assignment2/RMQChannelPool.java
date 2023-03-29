@@ -16,7 +16,7 @@ public class RMQChannelPool {
   private static final String QUEUE_NAME = "twinder_queue";
 
   private static final String PRIVATE_RMQ_EC2 = "172.31.29.115";
-  private static final String PUBLIC_RMQ_EC2 = "18.236.102.133";
+  private static final String PUBLIC_RMQ_EC2 = "35.92.48.54";
   private static final int RMQ_LB_PORT = 5672;
   private static final String LOCALHOST = "localhost";
   private static final int MAX_CHANNELS = 400;
@@ -35,7 +35,7 @@ public class RMQChannelPool {
 
   public RMQChannelPool() {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(PRIVATE_RMQ_EC2);
+    factory.setHost(PUBLIC_RMQ_EC2);
     setUserCredentials(factory);
     try {
       connection = factory.newConnection();

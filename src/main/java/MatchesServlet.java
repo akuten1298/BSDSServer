@@ -11,21 +11,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 @WebServlet("/matches/*")
 public class MatchesServlet extends HttpServlet {
 
     private static MongoCollection<Document> collection;
-    private static String MATCHES_DB = "matches";
-    private static String USER_ID = "userId";
-    private static String MATCH_LIST = "matchList";
-
+    private static String SWIPE_DB = "swipe";
+    private static String MONGO_ID = "_id";
+    private static String LIKES = "likes";
     @Override
     public void init() throws ServletException {
         MongoConfig mongoConfig = MongoConfig.getInstance();
         MongoDatabase database = mongoConfig.getDatabase();
-        collection = database.getCollection(MATCHES_DB);
+        collection = database.getCollection(SWIPE_DB);
     }
 
     @Override
@@ -47,10 +46,20 @@ public class MatchesServlet extends HttpServlet {
             String userId = urlPath.substring(1);
             res.setStatus(HttpServletResponse.SC_OK);
 
-            Document myDoc = collection.find(Filters.eq(USER_ID, userId)).first();
+            Document myDoc = collection.find(Filters.eq(MONGO_ID, userId)).first();
             MatchesResponse matchesResponse;
             if(myDoc != null) {
-                matchesResponse = new MatchesResponse((List<String>)  myDoc.get(MATCH_LIST));
+
+                List<String> matchList = new ArrayList<>();
+                Set<String> likesSet = new HashSet<>((Collection) myDoc.get(LIKES));
+                for(String swipee : likesSet) {
+                    Document swipeeDoc = collection.find(Filters.eq(MONGO_ID, swipee)).first();
+                    Set<String> swipeeLikesSet = new HashSet<>((Collection) swipeeDoc.get(LIKES));
+                    if(swipeeLikesSet.contains(userId))
+                        matchList.add(swipee);
+                }
+
+                matchesResponse = new MatchesResponse(matchList);
                 String resp = gson.toJson(matchesResponse);
                 printWriter.print(resp);
             } else {
