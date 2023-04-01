@@ -26,12 +26,12 @@ public class StatsServlet extends HttpServlet {
     private static String SWIPE_DB = "swipe";
     private static String LIKES = "likes";
     private static String DISLIKES = "dislikes";
-    @Override
-    public void init() throws ServletException {
-        MongoConfig mongoConfig = MongoConfig.getInstance();
-        MongoDatabase database = mongoConfig.getDatabase();
-        collection = database.getCollection(SWIPE_DB);
-    }
+//    @Override
+//    public void init() throws ServletException {
+//        MongoConfig mongoConfig = MongoConfig.getInstance();
+//        MongoDatabase database = mongoConfig.getDatabase();
+//        collection = database.getCollection(SWIPE_DB);
+//    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)

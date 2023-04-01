@@ -3,6 +3,7 @@
  */
 
 import Assignment2.RMQChannelPool;
+
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -21,13 +22,7 @@ public class SwipeServlet extends HttpServlet {
   private static final String QUEUE_NAME = "twinder_queue";
   private static final String LEFT_URL_VERIFICATION = "left";
   private static final String RIGHT_URL_VERIFICATION = "right";
-
   private final AMQP.BasicProperties properties = MessageProperties.PERSISTENT_TEXT_PLAIN;
-
-  @Override
-  public void init() throws ServletException {
-    super.init();
-  }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
