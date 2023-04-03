@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="BSDSServer:war2">
+    <output-path>$PROJECT_DIR$/out/artifacts/BSDSServer_war2</output-path>
+    <root id="archive" name="BSDSServer_war.war">
+      <element id="artifact" artifact-name="BSDSServer:war exploded" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.36" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

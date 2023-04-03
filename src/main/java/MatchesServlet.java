@@ -20,6 +20,7 @@ public class MatchesServlet extends HttpServlet {
     private static String SWIPE_DB = "swipe";
     private static String MONGO_ID = "_id";
     private static String LIKES = "likes";
+
     @Override
     public void init() throws ServletException {
         MongoConfig mongoConfig = MongoConfig.getInstance();
@@ -51,12 +52,18 @@ public class MatchesServlet extends HttpServlet {
             if(myDoc != null) {
 
                 List<String> matchList = new ArrayList<>();
-                Set<String> likesSet = new HashSet<>((Collection) myDoc.get(LIKES));
-                for(String swipee : likesSet) {
-                    Document swipeeDoc = collection.find(Filters.eq(MONGO_ID, swipee)).first();
-                    Set<String> swipeeLikesSet = new HashSet<>((Collection) swipeeDoc.get(LIKES));
-                    if(swipeeLikesSet.contains(userId))
-                        matchList.add(swipee);
+                if(myDoc.get(LIKES) != null) {
+                    Set<String> likesSet = new HashSet<>((Collection) myDoc.get(LIKES));
+                    for(String swipee : likesSet) {
+                        Document swipeeDoc = collection.find(Filters.eq(MONGO_ID, swipee)).first();
+                        if(swipeeDoc == null)
+                            continue;
+                        if(swipeeDoc.get(LIKES) != null) {
+                            Set<String> swipeeLikesSet = new HashSet<>((Collection) swipeeDoc.get(LIKES));
+                            if(swipeeLikesSet.contains(userId))
+                                matchList.add(swipee);
+                        }
+                    }
                 }
 
                 matchesResponse = new MatchesResponse(matchList);

@@ -2,7 +2,6 @@
  * @author aakash
  */
 
-import Assignment2.RMQChannelPool;
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;

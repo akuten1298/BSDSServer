@@ -26,6 +26,7 @@ public class StatsServlet extends HttpServlet {
     private static String SWIPE_DB = "swipe";
     private static String LIKES = "likes";
     private static String DISLIKES = "dislikes";
+
     @Override
     public void init() throws ServletException {
         MongoConfig mongoConfig = MongoConfig.getInstance();
@@ -55,10 +56,10 @@ public class StatsServlet extends HttpServlet {
             Document myDoc = collection.find(Filters.eq(MONGO_ID, userId)).first();
             StatsResponse statsResponse;
             if(myDoc != null) {
-                Set<String> likesSet = new HashSet<>((Collection) myDoc.get(LIKES));
-                Set<String> disLikesSet = new HashSet<>((Collection) myDoc.get(DISLIKES));
+                int likes = myDoc.get(LIKES)  == null ? 0 : new HashSet<>((Collection) myDoc.get(LIKES)).size();
+                int disLikes = myDoc.get(DISLIKES)  == null ? 0 : new HashSet<>((Collection) myDoc.get(DISLIKES)).size();
 
-                statsResponse = new StatsResponse(likesSet.size(), disLikesSet.size());
+                statsResponse = new StatsResponse(likes, disLikes);
                 String resp = gson.toJson(statsResponse);
                 printWriter.print(resp);
             } else {

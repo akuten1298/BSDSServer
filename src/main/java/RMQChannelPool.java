@@ -1,5 +1,3 @@
-package Assignment2;
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -35,7 +33,7 @@ public class RMQChannelPool {
 
   public RMQChannelPool() {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(PUBLIC_RMQ_EC2);
+    factory.setHost(PRIVATE_RMQ_EC2);
     setUserCredentials(factory);
     try {
       connection = factory.newConnection();

@@ -12,11 +12,11 @@ public class MongoConfig {
 
     public static MongoConfig getInstance() {
         if(instance == null)
-            return new MongoConfig();
+            instance = new MongoConfig();
         return instance;
     }
 
-    public MongoConfig() {
+    private MongoConfig() {
         String connectionString = "mongodb+srv://twinder_username:twinder_password@twindercluster.rdueczb.mongodb.net/?retryWrites=true&w=majority";
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connectionString))
